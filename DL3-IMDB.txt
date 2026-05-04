@@ -1,0 +1,259 @@
+DL3:: Classification using Deep neural network
+Binary classification using Deep Neural Networks Example: Classify movie reviews into positive reviews and "negative" reviews, just based on the text content of the reviews. Use IMDB dataset.
+
+# ==============================
+# 1. Import Libraries
+# ==============================
+
+# For regular expressions (text cleaning)
+import re
+
+# For data handling
+import pandas as pd
+import numpy as np
+
+# For plotting
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# For splitting dataset
+from sklearn.model_selection import train_test_split
+
+# For encoding labels
+from sklearn.preprocessing import LabelEncoder
+
+# For evaluation metrics
+from sklearn.metrics import confusion_matrix, classification_report
+
+# Deep learning model
+from tensorflow.keras.models import Sequential
+
+# Neural network layers
+from tensorflow.keras.layers import Dense, Embedding, GlobalAveragePooling1D
+
+# For text preprocessing
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+
+# ==============================
+# 2. Load Dataset
+# ==============================
+
+# Load CSV file
+data = pd.read_csv('IMDB Dataset.csv')
+
+# Display first 5 rows
+print(data.head())
+
+
+# ==============================
+# 3. Exploratory Data Analysis
+# ==============================
+
+# Print shape
+print("Shape:", data.shape)
+
+# Check missing values
+print("Missing Values:\n", data.isnull().sum())
+
+# Class distribution
+print("Class Distribution:\n", data['sentiment'].value_counts())
+
+# Plot class distribution
+sns.countplot(x='sentiment', data=data)
+plt.title('Sentiment Class Distribution')
+plt.show()
+
+# Show sample reviews
+print("Sample positive review:\n", data[data['sentiment'] == 'positive']['review'].iloc[0][:300])
+print("Sample negative review:\n", data[data['sentiment'] == 'negative']['review'].iloc[0][:300])
+
+
+# ==============================
+# 4. Data Cleaning
+# ==============================
+
+# Function to remove HTML tags and clean text
+def clean_text(text):
+    text = re.sub(r'<.*?>', '', text)
+    text = text.lower().strip()
+    return text
+
+# Apply cleaning
+data['review'] = data['review'].apply(clean_text)
+
+# Show cleaned sample
+print("Cleaned review:\n", data['review'].iloc[0][:300])
+
+
+# ==============================
+# 5. Encode Labels
+# ==============================
+
+# Convert sentiment to numeric
+label_encoder = LabelEncoder()
+
+data['sentiment'] = label_encoder.fit_transform(data['sentiment'])
+
+# Features and target
+X = data['review'].values
+y = data['sentiment'].values
+
+
+# ==============================
+# 6. Tokenization and Padding
+# ==============================
+
+# Vocabulary size
+vocab_size = 10000
+
+# Maximum length of review
+max_length = 200
+
+# Create tokenizer
+tokenizer = Tokenizer(num_words=vocab_size, oov_token='<OOV>')
+
+# Fit tokenizer
+tokenizer.fit_on_texts(X)
+
+# Convert text to sequences
+sequences = tokenizer.texts_to_sequences(X)
+
+# Pad sequences
+padded_sequences = pad_sequences(
+    sequences,
+    maxlen=max_length,
+    padding='post',
+    truncating='post'
+)
+
+
+# ==============================
+# 7. Train-Test Split
+# ==============================
+
+X_train, X_test, y_train, y_test = train_test_split(
+    padded_sequences,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+
+# ==============================
+# 8. Build Neural Network
+# ==============================
+
+model = Sequential()
+
+# Embedding layer
+model.add(Embedding(vocab_size, 16))
+
+# Pooling layer
+model.add(GlobalAveragePooling1D())
+
+# Hidden layer
+model.add(Dense(24, activation='relu'))
+
+# Output layer
+model.add(Dense(1, activation='sigmoid'))
+
+# Model summary
+model.summary()
+
+
+# ==============================
+# 9. Compile Model
+# ==============================
+
+model.compile(
+    loss='binary_crossentropy',
+    optimizer='adam',
+    metrics=['accuracy']
+)
+
+
+# ==============================
+# 10. Train Model
+# ==============================
+
+history = model.fit(
+    X_train,
+    y_train,
+    epochs=10,
+    batch_size=32,
+    validation_split=0.2
+)
+
+
+# ==============================
+# 11. Evaluate Model
+# ==============================
+
+loss, accuracy = model.evaluate(X_test, y_test)
+
+print("Test Loss:", loss)
+print("Test Accuracy:", accuracy)
+
+
+# ==============================
+# 12. Plot Accuracy Graph
+# ==============================
+
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+
+plt.show()
+
+
+# ==============================
+# 13. Plot Loss Graph
+# ==============================
+
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+
+plt.show()
+
+
+# ==============================
+# 14. Confusion Matrix
+# ==============================
+
+# Predict values
+y_pred = (model.predict(X_test) > 0.5).astype(int)
+
+# Confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+
+# Plot heatmap
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    xticklabels=['Negative', 'Positive'],
+    yticklabels=['Negative', 'Positive']
+)
+
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+
+plt.show()
+
+
+# ==============================
+# 15. Classification Report
+# ==============================
+
+print(classification_report(y_test, y_pred))

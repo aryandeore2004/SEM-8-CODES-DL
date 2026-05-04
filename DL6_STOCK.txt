@@ -1,0 +1,137 @@
+DL6:: Recurrent neural network (RNN)
+Use the Google stock prices dataset and design a time series analysis and prediction system using RNN.
+
+# ==============================
+# GOOGLE STOCK PRICE PREDICTION USING RNN
+# ==============================
+
+# Import required libraries
+import numpy as np                     # For numerical operations
+import pandas as pd                    # For data handling
+import matplotlib.pyplot as plt        # For plotting graphs
+
+from sklearn.preprocessing import MinMaxScaler   # For data normalization
+from tensorflow.keras.models import Sequential   # For building model
+from tensorflow.keras.layers import SimpleRNN, Dense   # RNN & Dense layers
+
+
+# ==============================
+# 1. LOAD DATASET
+# ==============================
+
+# Load CSV file
+df = pd.read_csv("Google_Stock_Price.csv", thousands=',')
+
+# Convert 'Open' column to numeric and remove invalid values
+data = pd.to_numeric(df['Open'], errors='coerce').dropna().values.reshape(-1, 1)
+
+
+# ==============================
+# 2. DATA SCALING (NORMALIZATION)
+# ==============================
+
+# Scale data between 0 and 1
+scaler = MinMaxScaler(feature_range=(0, 1))
+data_scaled = scaler.fit_transform(data)
+
+
+# ==============================
+# 3. TRAIN-TEST SPLIT
+# ==============================
+
+# 80% training, 20% testing
+train_size = int(len(data_scaled) * 0.8)
+
+train_data = data_scaled[:train_size]
+test_data = data_scaled[train_size:]
+
+
+# ==============================
+# 4. CREATE DATASET (TIME SERIES)
+# ==============================
+
+# Function to create sequences of 60 time steps
+def create_dataset(dataset):
+    X = []
+    y = []
+    
+    # Loop through dataset to create sequences
+    for i in range(60, len(dataset)):
+        X.append(dataset[i-60:i, 0])   # Previous 60 values
+        y.append(dataset[i, 0])        # Current value
+    
+    return np.array(X), np.array(y)
+
+
+# Create training and testing data
+X_train, y_train = create_dataset(train_data)
+X_test, y_test = create_dataset(test_data)
+
+
+# ==============================
+# 5. RESHAPE DATA FOR RNN
+# ==============================
+
+# Reshape into 3D format required by RNN: [samples, time steps, features]
+X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+
+
+# ==============================
+# 6. BUILD RNN MODEL
+# ==============================
+
+# Initialize model
+model = Sequential()
+
+# Add first RNN layer (returns sequences for next layer)
+model.add(SimpleRNN(50, return_sequences=True, input_shape=(60, 1)))
+
+# Add second RNN layer
+model.add(SimpleRNN(50))
+
+# Output layer
+model.add(Dense(1))
+
+# Compile model
+model.compile(optimizer='adam', loss='mean_squared_error')
+
+
+# ==============================
+# 7. TRAIN MODEL
+# ==============================
+
+model.fit(X_train, y_train, epochs=20, batch_size=32)
+
+
+# ==============================
+# 8. MAKE PREDICTIONS
+# ==============================
+
+# Predict stock prices
+predicted = model.predict(X_test)
+
+# Convert scaled values back to original
+predicted = scaler.inverse_transform(predicted)
+real = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+
+# ==============================
+# 9. VISUALIZATION
+# ==============================
+
+# Plot real vs predicted prices
+plt.plot(real, color='red', label='Real Price')
+plt.plot(predicted, color='blue', label='Predicted Price')
+
+plt.title("Google Stock Price Prediction (RNN)")
+plt.xlabel("Time")
+plt.ylabel("Price")
+plt.legend()
+
+plt.show()
+
+
+# ==============================
+# END OF PROGRAM
+# ==============================

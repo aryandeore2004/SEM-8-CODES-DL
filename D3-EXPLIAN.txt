@@ -1,0 +1,285 @@
+✅ 📘 Detailed Explanation of the Code
+🔹 1. Import Libraries
+re → For text cleaning (remove HTML, symbols)
+pandas, numpy → Data handling
+matplotlib, seaborn → Visualization
+train_test_split → Split dataset
+LabelEncoder → Convert labels (positive/negative → 0/1)
+confusion_matrix, classification_report → Evaluation
+keras layers → Build neural network
+Tokenizer, pad_sequences → Text preprocessing
+🔹 2. Load Dataset
+Dataset: IMDB Movie Reviews Dataset
+Contains:
+Review text
+Sentiment (positive / negative)
+
+👉 This is a Binary Classification Problem
+
+🔹 3. Exploratory Data Analysis (EDA)
+Check:
+Dataset size
+Missing values
+Class distribution
+sns.countplot(x='sentiment')
+
+👉 Shows number of positive vs negative reviews
+
+Also prints sample reviews
+
+👉 Helps understand:
+
+Data balance
+Nature of text
+🔹 4. Data Cleaning
+def clean_text(text):
+Removes HTML tags (<br>)
+Converts text to lowercase
+Removes unwanted spaces
+
+👉 Important because:
+
+Clean data → better model performance
+🔹 5. Encode Labels
+LabelEncoder()
+Converts:
+positive → 1
+negative → 0
+
+👉 Required for neural networks
+
+🔹 6. Tokenization & Padding
+🔸 Tokenization
+Tokenizer()
+Converts words → numbers
+
+Example:
+
+"good movie" → [45, 102]
+🔸 Padding
+pad_sequences()
+Makes all sequences same length (200 words)
+
+👉 Why needed?
+
+Neural networks require fixed input size
+🔹 7. Train-Test Split
+80% → Training
+20% → Testing
+
+👉 Ensures unbiased evaluation
+
+🔹 8. Build Neural Network
+Sequential()
+Architecture:
+🔸 Embedding Layer
+Embedding(vocab_size, 16)
+
+👉 Converts words into dense vectors
+
+Captures meaning of words
+Example: “good” and “great” become similar vectors
+🔸 Pooling Layer
+GlobalAveragePooling1D()
+
+👉 Reduces sequence into one vector
+👉 Takes average of all word vectors
+
+🔸 Hidden Layer
+Dense(24, activation='relu')
+
+👉 Learns patterns in text
+
+🔸 Output Layer
+Dense(1, activation='sigmoid')
+
+👉 Binary output (0 or 1)
+
+Sigmoid function:
+
+σ(x)=
+1+e
+−x
+1
+	​
+
+
+👉 Output between 0 and 1 (probability)
+
+🔹 9. Compile Model
+loss='binary_crossentropy'
+optimizer='adam'
+metrics=['accuracy']
+🔸 Binary Crossentropy:
+
+L=−[ylog(
+y
+^
+	​
+
+)+(1−y)log(1−
+y
+^
+	​
+
+)]
+
+👉 Measures difference between actual and predicted probability
+
+🔹 10. Train Model
+model.fit()
+Epochs = 10
+Batch size = 32
+Validation split = 0.2
+
+👉 Model learns sentiment patterns from text
+
+🔹 11. Evaluate Model
+model.evaluate()
+
+Outputs:
+
+Loss
+Accuracy
+🔹 12. Accuracy Graph
+Training vs validation accuracy
+
+👉 Interpretation:
+
+Increasing → learning
+Large gap → overfitting
+🔹 13. Loss Graph
+Error reduction over epochs
+
+👉 Ideal:
+
+Both curves decreasing
+🔹 14. Confusion Matrix
+confusion_matrix()
+
+Shows:
+
+	Predicted Positive	Predicted Negative
+Actual Positive	TP	FN
+Actual Negative	FP	TN
+
+👉 Helps evaluate model performance
+
+🔹 15. Classification Report
+classification_report()
+
+Includes:
+
+Precision → Correct positive predictions
+Recall → Captured positives
+F1-score → Balance of precision & recall
+✅ 📊 Key Concepts Used
+Natural Language Processing (NLP)
+Binary Classification
+Tokenization & Padding
+Word Embeddings
+Sigmoid Activation
+Cross-Entropy Loss
+🎯 📘 Viva / Practical Questions & Answers
+🔹 Basic Questions
+Q1. What is IMDB dataset?
+
+👉 Dataset of movie reviews labeled as positive or negative.
+
+Q2. Type of problem?
+
+👉 Binary classification
+
+Q3. What is Tokenization?
+
+👉 Converting text into numerical sequences.
+
+Q4. Why padding is needed?
+
+👉 To make all inputs same length.
+
+🔹 Intermediate Questions
+Q5. What is Embedding layer?
+
+👉 Converts words into dense vectors representing meaning.
+
+Q6. What is Sigmoid function?
+
+σ(x)=
+1+e
+−x
+1
+	​
+
+
+👉 Outputs probability between 0 and 1
+
+Q7. What is Binary Crossentropy?
+
+L=−[ylog(
+y
+^
+	​
+
+)+(1−y)log(1−
+y
+^
+	​
+
+)]
+
+Q8. What is confusion matrix?
+
+👉 Table showing prediction performance.
+
+Q9. What is accuracy?
+
+👉 Correct predictions / total predictions
+
+🔹 Advanced Questions
+Q10. Why use Embedding instead of one-hot encoding?
+
+👉 More efficient and captures semantic meaning.
+
+Q11. What is overfitting?
+
+👉 Model memorizes training data but fails on new data.
+
+Q12. How to improve model?
+Increase epochs
+Add dropout
+Use LSTM / GRU
+Q13. Why use GlobalAveragePooling?
+
+👉 Reduces complexity and avoids overfitting.
+
+🔹 Output-Based Questions
+Q14. What does confusion matrix show?
+
+👉 TP, TN, FP, FN values.
+
+Q15. What is precision?
+
+👉 TP / (TP + FP)
+
+Q16. What is recall?
+
+👉 TP / (TP + FN)
+
+Q17. What is F1-score?
+
+👉 Harmonic mean of precision and recall
+
+✅ 📌 Conclusion (Exam Writing)
+Implemented binary classification using Deep Neural Network.
+Used IMDB dataset for sentiment analysis.
+Applied preprocessing (cleaning, tokenization, padding).
+Built model with embedding + dense layers.
+Used sigmoid activation and binary crossentropy.
+Evaluated using accuracy, confusion matrix, and classification report.
+⚡ Quick Viva Revision
+Problem → Binary classification
+Dataset → IMDB reviews
+Output → Sigmoid (0–1)
+Loss → Binary crossentropy
+Key concept → NLP + embeddings

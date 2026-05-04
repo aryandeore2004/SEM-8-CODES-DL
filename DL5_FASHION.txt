@@ -1,0 +1,212 @@
+DL5:: Convolutional neural network (CNN)
+Use MNIST Fashion Dataset and create a classifier to classify fashion clothing into categories.
+
+# ============================================================
+# FASHION MNIST CLASSIFICATION USING CNN
+# ============================================================
+
+# =========================
+# 1. IMPORT LIBRARIES
+# =========================
+
+import numpy as np                      # Numerical operations
+import matplotlib.pyplot as plt         # Plotting graphs
+import seaborn as sns                   # Visualization
+
+import tensorflow as tf                 # Deep learning library
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, AvgPool2D, GlobalAveragePooling2D, Dense
+from tensorflow.keras.utils import to_categorical
+
+from sklearn.metrics import confusion_matrix, classification_report
+
+
+# =========================
+# 2. LOAD DATASET
+# =========================
+
+# Load Fashion MNIST dataset (auto-downloads)
+(X_train, y_train), (X_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+
+print("Training Data Shape:", X_train.shape)   # (60000, 28, 28)
+print("Testing Data Shape:", X_test.shape)     # (10000, 28, 28)
+
+
+# =========================
+# 3. DEFINE CLASS NAMES
+# =========================
+
+# Labels for each class (0–9)
+class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+
+
+# =========================
+# 4. DATA PREPROCESSING
+# =========================
+
+# Reshape data → add channel dimension (grayscale image)
+X_train = X_train.reshape(-1, 28, 28, 1).astype('float32')
+X_test  = X_test.reshape(-1, 28, 28, 1).astype('float32')
+
+# Normalize pixel values (0–255 → 0–1)
+X_train = X_train / 255.0
+X_test  = X_test / 255.0
+
+# Convert labels into one-hot encoding
+y_train_cat = to_categorical(y_train, 10)
+y_test_cat  = to_categorical(y_test, 10)
+
+print("Processed Training Shape:", X_train.shape)
+
+
+# =========================
+# 5. BUILD CNN MODEL
+# =========================
+
+model = Sequential()
+
+# First Convolution Layer
+model.add(Conv2D(64, (3, 3), activation='relu', padding='same',
+                 input_shape=(28, 28, 1)))
+
+# Pooling Layer
+model.add(AvgPool2D(pool_size=(2, 2)))
+
+# Second Convolution Layer
+model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
+
+# Pooling Layer
+model.add(AvgPool2D(pool_size=(2, 2)))
+
+# Global Average Pooling
+model.add(GlobalAveragePooling2D())
+
+# Output Layer (10 classes)
+model.add(Dense(10, activation='softmax'))
+
+# Show model summary
+model.summary()
+
+
+# =========================
+# 6. COMPILE MODEL
+# =========================
+
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+
+# =========================
+# 7. TRAIN MODEL
+# =========================
+
+history = model.fit(
+    X_train, y_train_cat,
+    epochs=10,
+    validation_data=(X_test, y_test_cat)
+)
+
+
+# =========================
+# 8. EVALUATE MODEL
+# =========================
+
+loss, accuracy = model.evaluate(X_test, y_test_cat)
+
+print("Test Loss:", loss)
+print("Test Accuracy:", accuracy * 100, "%")
+
+
+# =========================
+# 9. PLOT ACCURACY GRAPH
+# =========================
+
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+
+plt.title("Accuracy vs Epochs")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.show()
+
+
+# =========================
+# 10. PLOT LOSS GRAPH
+# =========================
+
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+
+plt.title("Loss vs Epochs")
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.legend()
+plt.show()
+
+
+# =========================
+# 11. CONFUSION MATRIX
+# =========================
+
+# Predict class labels
+y_pred = np.argmax(model.predict(X_test), axis=1)
+
+# Generate confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+
+# Plot confusion matrix
+plt.figure(figsize=(10, 8))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+            xticklabels=class_names, yticklabels=class_names)
+
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+
+# =========================
+# 12. CLASSIFICATION REPORT
+# =========================
+
+print("Classification Report:\n")
+print(classification_report(y_test, y_pred, target_names=class_names))
+
+
+# =========================
+# 13. SAMPLE PREDICTIONS
+# =========================
+
+# Predict all test images
+predictions = np.argmax(model.predict(X_test), axis=1)
+
+# Pick 10 random images
+indices = np.random.choice(len(X_test), 10)
+
+plt.figure(figsize=(15, 4))
+
+for i, idx in enumerate(indices):
+    plt.subplot(2, 5, i + 1)
+    
+    plt.imshow(X_test[idx].reshape(28, 28), cmap='gray')
+    
+    pred_label = class_names[predictions[idx]]
+    true_label = class_names[y_test[idx]]
+    
+    # Green if correct, Red if wrong
+    color = 'green' if pred_label == true_label else 'red'
+    
+    plt.title(f"P: {pred_label}\nA: {true_label}", color=color, fontsize=8)
+    plt.axis('off')
+
+plt.show()
+
+
+# =========================
+# END OF PROGRAM
+# =========================

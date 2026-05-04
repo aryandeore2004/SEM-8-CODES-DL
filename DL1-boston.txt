@@ -1,0 +1,203 @@
+DL1:: Linear regression by using Deep Neural network: Implement Boston housing price prediction problem by Linear regression using Deep Neural network. Use Boston House price prediction dataset
+
+# ==============================
+# 1. Import Required Libraries
+# ==============================
+
+# For numerical operations
+import numpy as np
+
+# For handling dataset
+import pandas as pd
+
+# For plotting graphs
+import matplotlib.pyplot as plt
+
+# To load dataset from OpenML
+from sklearn.datasets import fetch_openml
+
+# To split dataset
+from sklearn.model_selection import train_test_split
+
+# For feature scaling
+from sklearn.preprocessing import StandardScaler
+
+# Deep learning library
+import tensorflow as tf
+
+# High-level API
+from tensorflow import keras
+
+# Layers for neural network
+from tensorflow.keras import layers
+
+
+# ==============================
+# 2. Load Dataset
+# ==============================
+
+# Load Boston Housing dataset
+boston = fetch_openml(name='boston', version=1, as_frame=True)
+
+# Features (input variables)
+X = boston.data
+
+# Target (output variable)
+y = boston.target.astype(float)
+
+
+# ==============================
+# 3. Explore Dataset
+# ==============================
+
+# Display first 5 rows
+print(X.head())
+
+# Print shapes
+print("Features shape:", X.shape)
+print("Target shape:", y.shape)
+
+
+# ==============================
+# 4. Train-Test Split
+# ==============================
+
+# Split into training and testing data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,
+    random_state=42
+)
+
+
+# ==============================
+# 5. Feature Scaling
+# ==============================
+
+# Create scaler object
+scaler = StandardScaler()
+
+# Fit and transform training data
+X_train = scaler.fit_transform(X_train)
+
+# Transform testing data
+X_test = scaler.transform(X_test)
+
+
+# ==============================
+# 6. Build Neural Network
+# ==============================
+
+# Create model
+model = keras.Sequential([
+
+    # Input + first hidden layer
+    layers.Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
+
+    # Second hidden layer
+    layers.Dense(32, activation='relu'),
+
+    # Third hidden layer
+    layers.Dense(16, activation='relu'),
+
+    # Output layer
+    layers.Dense(1)
+])
+
+
+# ==============================
+# 7. Compile Model
+# ==============================
+
+# Configure model
+model.compile(
+    optimizer='adam',
+    loss='mse',
+    metrics=['mae']
+)
+
+
+# ==============================
+# 8. Train Model
+# ==============================
+
+# Train the model
+history = model.fit(
+    X_train, y_train,
+    epochs=100,
+    batch_size=16,
+    validation_split=0.2
+)
+
+
+# ==============================
+# 9. Evaluate Model
+# ==============================
+
+# Evaluate on test data
+loss, mae = model.evaluate(X_test, y_test)
+
+# Print results
+print("Test Loss (MSE):", loss)
+print("Test MAE:", mae)
+
+
+# ==============================
+# 10. Predictions
+# ==============================
+
+# Predict values
+y_pred = model.predict(X_test)
+
+
+# ==============================
+# 11. Compare Results
+# ==============================
+
+# Create comparison table
+comparison = pd.DataFrame({
+    'Actual': y_test.values,
+    'Predicted': y_pred.flatten()
+})
+
+# Display results
+print(comparison.head())
+
+
+# ==============================
+# 12. Plot Loss Graph
+# ==============================
+
+# Plot training loss
+plt.plot(history.history['loss'], label='Training Loss')
+
+# Plot validation loss
+plt.plot(history.history['val_loss'], label='Validation Loss')
+
+# Labels
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+
+# Legend
+plt.legend()
+
+# Show graph
+plt.show()
+
+
+# ==============================
+# 13. Scatter Plot
+# ==============================
+
+# Plot actual vs predicted
+plt.scatter(y_test, y_pred)
+
+# Labels
+plt.xlabel("Actual Prices")
+plt.ylabel("Predicted Prices")
+
+# Title
+plt.title("Actual vs Predicted Prices")
+
+# Show plot
+plt.show()

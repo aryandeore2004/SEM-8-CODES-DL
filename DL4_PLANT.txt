@@ -1,0 +1,228 @@
+DL4:: Convolutional neural network (CNN)
+Use any dataset of plant disease and design a plant disease detection system using CNN.
+# ============================================================
+# PLANT DISEASE DETECTION USING CNN (DEEP LEARNING)
+# ============================================================
+
+# =========================
+# 1. IMPORT LIBRARIES
+# =========================
+
+import os                               # For file handling
+import numpy as np                      # Numerical operations
+import cv2                              # Image processing
+import matplotlib.pyplot as plt         # Plotting graphs
+import seaborn as sns                   # Visualization (confusion matrix)
+
+from sklearn.model_selection import train_test_split   # Split dataset
+from sklearn.metrics import confusion_matrix, classification_report
+
+from tensorflow.keras.models import Sequential         # Model building
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.utils import to_categorical      # One-hot encoding
+
+
+# =========================
+# 2. LOAD DATASET
+# =========================
+
+# Path to training dataset
+dataset_path = './New Plant Diseases Dataset(Augmented)/train/'
+
+data = []      # To store images
+labels = []    # To store labels
+
+# Get all disease categories (folders)
+categories = sorted(os.listdir(dataset_path))
+
+# Create label mapping (class → number)
+label_dict = {category: idx for idx, category in enumerate(categories)}
+
+print("Total Classes:", len(categories))
+
+# Limit images per class (prevents memory overflow)
+max_images_per_class = 200
+
+# Loop through each category
+for category in categories:
+    
+    folder_path = os.path.join(dataset_path, category)
+    count = 0
+    
+    # Read images from folder
+    for img_name in os.listdir(folder_path):
+        
+        if count >= max_images_per_class:
+            break
+        
+        img_path = os.path.join(folder_path, img_name)
+        
+        # Read image using OpenCV
+        img = cv2.imread(img_path)
+        
+        if img is not None:
+            # Resize image to 64x64
+            img = cv2.resize(img, (64, 64))
+            
+            # Add to dataset
+            data.append(img)
+            labels.append(label_dict[category])
+            
+            count += 1
+
+
+# Convert list to numpy array
+data = np.array(data)
+labels = np.array(labels)
+
+# Normalize pixel values (0–255 → 0–1)
+data = data / 255.0
+
+print("Dataset Shape:", data.shape)
+print("Labels Shape:", labels.shape)
+
+
+# =========================
+# 3. TRAIN-TEST SPLIT
+# =========================
+
+X_train, X_test, y_train, y_test = train_test_split(
+    data, labels, test_size=0.2, random_state=42
+)
+
+# Number of classes
+num_classes = len(categories)
+
+# Convert labels to one-hot encoding
+y_train = to_categorical(y_train, num_classes)
+y_test = to_categorical(y_test, num_classes)
+
+print("Training Samples:", X_train.shape[0])
+print("Testing Samples:", X_test.shape[0])
+
+
+# =========================
+# 4. BUILD CNN MODEL
+# =========================
+
+model = Sequential()
+
+# First Convolution Layer
+model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(64, 64, 3)))
+# Pooling Layer
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+# Second Convolution Layer
+model.add(Conv2D(64, (3, 3), activation='relu'))
+# Pooling Layer
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+# Flatten Layer (convert 2D → 1D)
+model.add(Flatten())
+
+# Fully Connected Layer
+model.add(Dense(128, activation='relu'))
+
+# Dropout (prevent overfitting)
+model.add(Dropout(0.5))
+
+# Output Layer (Softmax for multi-class classification)
+model.add(Dense(num_classes, activation='softmax'))
+
+# Show model structure
+model.summary()
+
+
+# =========================
+# 5. COMPILE MODEL
+# =========================
+
+model.compile(
+    optimizer='adam',                    # Optimizer
+    loss='categorical_crossentropy',     # Loss for multi-class
+    metrics=['accuracy']                 # Evaluation metric
+)
+
+
+# =========================
+# 6. TRAIN MODEL
+# =========================
+
+history = model.fit(
+    X_train, y_train,
+    epochs=10,
+    batch_size=32,
+    validation_split=0.2
+)
+
+
+# =========================
+# 7. MODEL EVALUATION
+# =========================
+
+loss, accuracy = model.evaluate(X_test, y_test)
+
+print("Test Loss:", loss)
+print("Test Accuracy:", accuracy * 100, "%")
+
+
+# =========================
+# 8. PLOT ACCURACY GRAPH
+# =========================
+
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+
+plt.title("Accuracy Graph")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.show()
+
+
+# =========================
+# 9. PLOT LOSS GRAPH
+# =========================
+
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+
+plt.title("Loss Graph")
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.legend()
+plt.show()
+
+
+# =========================
+# 10. CONFUSION MATRIX
+# =========================
+
+# Predict classes
+y_pred = np.argmax(model.predict(X_test), axis=1)
+y_true = np.argmax(y_test, axis=1)
+
+# Generate confusion matrix
+cm = confusion_matrix(y_true, y_pred)
+
+# Plot confusion matrix
+plt.figure(figsize=(10, 8))
+sns.heatmap(cm, annot=True, cmap='Blues', fmt='d')
+
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+
+# =========================
+# 11. CLASSIFICATION REPORT
+# =========================
+
+print("Classification Report:\n")
+print(classification_report(y_true, y_pred, target_names=categories))
+
+
+# =========================
+# END OF PROGRAM
+# =========================

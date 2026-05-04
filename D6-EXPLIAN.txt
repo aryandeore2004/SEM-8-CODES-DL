@@ -1,0 +1,216 @@
+✅ 📘 Detailed Explanation of the Code
+🔹 1. Import Libraries
+numpy → Numerical operations
+pandas → Data handling
+matplotlib → Plot graphs
+MinMaxScaler → Normalize data
+Sequential → Build model
+SimpleRNN → Recurrent Neural Network layer
+Dense → Output layer
+🔹 2. Load Dataset
+Dataset: Google Stock Price Dataset
+Uses 'Open' price column
+
+👉 Why “Open” price?
+
+Commonly used for stock prediction
+🔸 Data Cleaning
+pd.to_numeric(..., errors='coerce')
+Converts data to numeric
+Removes invalid values
+🔹 3. Data Scaling (Normalization)
+MinMaxScaler(0,1)
+
+👉 Converts values:
+
+From large range → 0 to 1
+
+👉 Important because:
+
+Neural networks perform better with scaled data
+🔹 4. Train-Test Split
+80% → Training
+20% → Testing
+
+👉 Maintains time order (important in time series)
+
+🔹 5. Create Time Series Dataset
+🔸 Concept: Sliding Window
+for i in range(60, len(dataset)):
+
+👉 Uses previous 60 days to predict next day
+
+Example:
+
+Input → Day 1–60
+Output → Day 61
+
+👉 This is called sequence learning
+
+🔹 6. Reshape Data for RNN
+X_train.shape → (samples, time_steps, features)
+
+👉 Required format for RNN:
+
+Samples → number of data points
+Time steps → 60 days
+Features → 1 (stock price)
+🔹 7. Build RNN Model
+Sequential()
+🔸 Architecture
+🧩 1. First RNN Layer
+SimpleRNN(50, return_sequences=True)
+
+👉 50 neurons
+👉 return_sequences=True → pass sequence to next layer
+
+🧩 2. Second RNN Layer
+SimpleRNN(50)
+
+👉 Outputs final sequence representation
+
+🧩 3. Output Layer
+Dense(1)
+
+👉 Predicts single value (stock price)
+
+🔹 8. Compile Model
+loss='mean_squared_error'
+optimizer='adam'
+🔸 Loss Function:
+
+MSE=
+n
+1
+	​
+
+∑(y−
+y
+^
+	​
+
+)
+2
+
+👉 Measures prediction error
+
+🔹 9. Train Model
+model.fit(...)
+Epochs = 20
+Batch size = 32
+
+👉 Model learns time-based patterns
+
+🔹 10. Make Predictions
+model.predict()
+Predicts scaled values
+🔸 Inverse Scaling
+scaler.inverse_transform()
+
+👉 Converts back to original price values
+
+🔹 11. Visualization
+plt.plot(real)
+plt.plot(predicted)
+
+👉 Compares:
+
+Actual price (red)
+Predicted price (blue)
+
+👉 If curves are close → good model
+
+✅ 📊 Key Concepts Used
+Recurrent Neural Network (RNN)
+Time Series Analysis
+Sequence Learning
+Sliding Window Technique
+Data Normalization
+🎯 📘 Viva / Practical Questions & Answers
+🔹 Basic Questions
+Q1. What is RNN?
+
+👉 Neural network used for sequential/time-series data.
+
+Q2. What is time series data?
+
+👉 Data collected over time (e.g., stock prices).
+
+Q3. What is sliding window?
+
+👉 Using previous values to predict next value.
+
+Q4. Why normalize data?
+
+👉 To improve training performance.
+
+🔹 Intermediate Questions
+Q5. Why use 60 time steps?
+
+👉 Captures past trend (can be tuned).
+
+Q6. What is return_sequences=True?
+
+👉 Passes output sequence to next RNN layer.
+
+Q7. Why reshape data?
+
+👉 RNN requires 3D input format.
+
+Q8. What is MSE?
+
+MSE=
+n
+1
+	​
+
+∑(y−
+y
+^
+	​
+
+)
+2
+
+🔹 Advanced Questions
+Q9. Why RNN instead of DNN?
+
+👉 RNN captures temporal dependencies.
+
+Q10. Limitation of SimpleRNN?
+
+👉 Suffers from vanishing gradient problem.
+
+Q11. Better alternatives?
+
+👉 LSTM, GRU
+
+Q12. What is overfitting?
+
+👉 Model memorizes training data.
+
+🔹 Output-Based Questions
+Q13. What does graph show?
+
+👉 Real vs predicted stock prices.
+
+Q14. Ideal graph?
+
+👉 Predicted line closely follows actual line.
+
+Q15. What if predictions are far?
+
+👉 Model is not trained well / needs tuning.
+
+✅ 📌 Conclusion (Exam Writing)
+Implemented RNN for stock price prediction.
+Used time series data with sliding window approach.
+Built model with stacked RNN layers.
+Evaluated using MSE and visualization.
+Predicted future stock prices effectively.
+⚡ Quick Viva Revision
+Problem → Time series prediction
+Model → RNN
+Input → 60 time steps
+Output → Next value
+Loss → MSE

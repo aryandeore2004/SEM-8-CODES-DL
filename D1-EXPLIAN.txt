@@ -1,0 +1,256 @@
+✅ 📘 Detailed Explanation of the Code
+🔹 1. Import Required Libraries
+numpy → Used for numerical computations (arrays, matrices).
+pandas → Used to handle tabular data (DataFrame).
+matplotlib.pyplot → Used for plotting graphs.
+fetch_openml → Loads Boston Housing dataset from OpenML.
+train_test_split → Splits data into training and testing sets.
+StandardScaler → Normalizes data (important for neural networks).
+tensorflow / keras → Used to build and train Deep Neural Network.
+🔹 2. Load Dataset
+Dataset: Boston Housing Dataset
+It contains information about housing prices in Boston suburbs.
+Features (X):
+
+Examples:
+
+Crime rate
+Number of rooms
+Property tax rate
+Distance to employment centers
+Target (y):
+House price (continuous value)
+
+👉 This is a regression problem (predict continuous values).
+
+🔹 3. Explore Dataset
+print(X.head())
+Shows first 5 rows.
+print(X.shape)
+Displays number of samples and features.
+
+👉 Helps understand:
+
+Data size
+Feature count
+🔹 4. Train-Test Split
+train_test_split(test_size=0.2)
+80% → Training data
+20% → Testing data
+
+👉 Why?
+
+To evaluate model performance on unseen data.
+🔹 5. Feature Scaling
+StandardScaler()
+Converts data into same scale (mean = 0, std = 1)
+
+👉 Important because:
+
+Neural networks perform better with normalized data
+Prevents bias toward larger values
+🔹 6. Build Neural Network
+keras.Sequential([...])
+Architecture:
+Input Layer
+Matches number of features
+Hidden Layers
+Dense(64, ReLU)
+Dense(32, ReLU)
+Dense(16, ReLU)
+
+👉 ReLU = max(0, x) → introduces non-linearity
+
+Output Layer
+Dense(1) → single value (price)
+
+👉 No activation because regression output is continuous.
+
+🔹 7. Compile Model
+optimizer='adam'
+loss='mse'
+metrics=['mae']
+Terms:
+Optimizer (Adam) → Updates weights efficiently
+Loss (MSE) → Measures error
+
+MSE=
+n
+1
+	​
+
+∑
+i=1
+n
+	​
+
+(y
+i
+	​
+
+−
+y
+^
+	​
+
+i
+	​
+
+)
+2
+
+MAE → Mean Absolute Error (average error)
+🔹 8. Train Model
+model.fit(...)
+Epochs = 100 → Model sees data 100 times
+Batch size = 16 → Data processed in chunks
+Validation split = 0.2 → 20% of training used for validation
+
+👉 Purpose:
+
+Learn patterns from data
+Monitor overfitting
+🔹 9. Evaluate Model
+model.evaluate()
+Evaluates performance on test data
+
+Outputs:
+
+Loss (MSE)
+MAE
+🔹 10. Predictions
+model.predict()
+Predicts house prices on test data
+🔹 11. Compare Results
+comparison = pd.DataFrame(...)
+Shows:
+Actual values
+Predicted values
+
+👉 Helps understand model accuracy.
+
+🔹 12. Loss Graph
+plt.plot(history.history['loss'])
+Shows training vs validation loss
+
+👉 Interpretation:
+
+If both decrease → good model
+If validation increases → overfitting
+🔹 13. Scatter Plot
+plt.scatter(y_test, y_pred)
+
+👉 Interpretation:
+
+Points near diagonal → good predictions
+Spread → errors
+✅ 📊 Key Concepts Used
+Deep Neural Network (DNN)
+Regression
+Backpropagation
+Gradient Descent (Adam optimizer)
+Feature Scaling
+Overfitting vs Underfitting
+🎯 📘 Viva / Practical Questions & Answers
+🔹 Basic Questions
+Q1. What is Boston Housing Dataset?
+
+👉 It is a dataset used for predicting house prices based on various features.
+
+Q2. Is this classification or regression?
+
+👉 Regression (output is continuous value).
+
+Q3. What is Deep Neural Network?
+
+👉 A neural network with multiple hidden layers used to learn complex patterns.
+
+Q4. What is ReLU?
+
+👉 Activation function:
+👉 Returns 0 if input < 0, else returns input.
+
+🔹 Intermediate Questions
+Q5. Why use StandardScaler?
+
+👉 To normalize features so that all inputs are on same scale.
+
+Q6. What is MSE?
+
+👉 Mean Squared Error:
+
+MSE=
+n
+1
+	​
+
+∑(y−
+y
+^
+	​
+
+)
+2
+
+👉 Measures squared difference between actual and predicted values.
+
+Q7. What is MAE?
+
+👉 Mean Absolute Error (average absolute difference).
+
+Q8. Why no activation in output layer?
+
+👉 Because regression requires continuous output.
+
+Q9. What is Epoch?
+
+👉 One complete pass through entire training dataset.
+
+Q10. What is Batch Size?
+
+👉 Number of samples processed before updating weights.
+
+🔹 Advanced Questions
+Q11. Why use Adam optimizer?
+
+👉 Combines momentum and RMSprop → faster convergence.
+
+Q12. What is Overfitting?
+
+👉 Model performs well on training but poorly on test data.
+
+Q13. How to reduce overfitting?
+Dropout
+Regularization
+More data
+Early stopping
+Q14. Why use multiple hidden layers?
+
+👉 To learn complex relationships between features and target.
+
+Q15. What happens without scaling?
+
+👉 Model may:
+
+Train slowly
+Converge poorly
+🔹 Output-Based Questions
+Q16. What does loss graph show?
+
+👉 Training vs validation performance over epochs.
+
+Q17. What does scatter plot represent?
+
+👉 Comparison of actual vs predicted values.
+
+Q18. Ideal scatter plot?
+
+👉 Points should lie close to straight diagonal line.
+
+✅ 📌 Conclusion (For Exam Writing)
+Implemented regression using Deep Neural Network.
+Used Boston Housing dataset.
+Applied preprocessing (scaling).
+Built multi-layer neural network.
+Evaluated using MSE and MAE.
+Visualized performance using graphs.
